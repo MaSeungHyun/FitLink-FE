@@ -8,7 +8,7 @@ import React from "react";
 import { saveTokens } from "@user/services/auth";
 import { SignupRequestBody, UserVerificationStatus } from "@user/services/types/auth.dto";
 
-import { useRegisterFcmToken } from "../_hooks/useRegisterFcmToken";
+import { useFCMToken } from "../_hooks/useFCMToken";
 import { useSignupForm } from "../_hooks/useSignupForm";
 
 const DEFAULT_VERIFICATION_STATUS = "DEFAULT" as const;
@@ -70,15 +70,14 @@ const generateErrorMessage = (userStatus: UserSignupStatus) => {
 };
 
 function ResultStep({ form }: ResultStepProps) {
-  const { requestFcmPermission, isPending: isRegisterFcmTokenPending } = useRegisterFcmToken();
-
+  const initailizeFCM = useFCMToken();
   const { onSubmit, networkStatus, error } = useSignupForm({
     onSuccess: async ({ data }) => {
       const {
         data: { success },
       } = await saveTokens(data);
 
-      if (success) requestFcmPermission();
+      if (success) initailizeFCM();
 
       // TODO: success false 시 정책 구현
       // TODO: status 별 정책 구현
@@ -119,8 +118,7 @@ function ResultStep({ form }: ResultStepProps) {
           status={networkStatus}
           userStatus={userStatus}
           onClick={handleClick(networkStatus, userStatus)}
-          disabled={isRegisterFcmTokenPending}
-        />
+        ></SignupButton>
       </div>
     </div>
   );
@@ -139,13 +137,12 @@ type SignupButtonProps = {
   status: Status;
   userStatus: UserSignupStatus;
   onClick: () => void;
-  disabled?: boolean;
 };
-function SignupButton({ status, userStatus, onClick, disabled = false }: SignupButtonProps) {
+function SignupButton({ status, userStatus, onClick }: SignupButtonProps) {
   if (status === "pending" || status === "idle") return <></>;
 
   return (
-    <Button size="xl" className="w-full" onClick={onClick} disabled={disabled}>
+    <Button size="xl" className="w-full" onClick={onClick}>
       {generateButtonContent(status, userStatus)}
     </Button>
   );

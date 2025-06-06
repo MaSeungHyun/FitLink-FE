@@ -12,8 +12,6 @@ import { ReissueTokenApiResponse, ReissueTokenRequestBody } from "@user/services
 
 import RouteInstance from "@user/constants/routes";
 
-import { registerServiceWorker } from "@user/utils/fcm";
-
 type SplashProps = {
   refreshToken: string | undefined;
 };
@@ -44,7 +42,6 @@ function Splash({ refreshToken }: SplashProps) {
   });
 
   useEffect(() => {
-    registerServiceWorker();
     if (refreshToken) {
       invalidateToken({ refreshToken });
     }
